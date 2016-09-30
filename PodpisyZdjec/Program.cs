@@ -43,19 +43,12 @@ namespace PodpisyZdjec
                 int extentionPos = file.IndexOf(".jpg", StringComparison.CurrentCultureIgnoreCase);
                 string fileName = file.Substring(lastDirectoryPos, extentionPos - lastDirectoryPos);
 
-                //string contents = getSourceString(i);
-
-                //if (contents == null)
-                //{
-                //    Console.WriteLine(i.ToString() + " already exists");
-                //    continue;
-                //}
-
-                //string base64 = extractImage(i, contents);
-
-                //SaveImageFile(i, base64);
-
-                Console.WriteLine("Reading " + fileName);
+                // jakość docelowych plików
+                ImageCodecInfo myImageCodecInfo = GetEncoderInfo("image/jpeg");
+                System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
+                EncoderParameters myEncoderParameters = new EncoderParameters(1);
+                EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 100L);
+                myEncoderParameters.Param[0] = myEncoderParameter;
 
                 using (FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
@@ -67,28 +60,35 @@ namespace PodpisyZdjec
                     string subject = md.Subject;
                     string comment = md.Comment;
 
-                    Console.WriteLine("Date: " + date);
-                    Console.WriteLine("Title: " + title);
-                    Console.WriteLine("Subject: " + subject);
+                    //Console.WriteLine("Date: " + date);
+                    //Console.WriteLine("Title: " + title);
+                    //Console.WriteLine("Subject: " + subject);
+                    int chars = 0;
+                    if (title != null)
+                        chars += title.Length;
+                    if (subject != null)
+                        chars += subject.Length;
+                    Console.WriteLine("Chars: " + chars);
+
                     //Console.WriteLine("Comment: " + comment);
 
                     Bitmap bitmap = GetBitmap(img);
-                    using (var graphics = Graphics.FromImage(bitmap))
-                    using (var font = new Font("Arial", 20, System.Drawing.FontStyle.Regular))
-                    {
-                        // Do what you want using the Graphics object here.
-                        graphics.DrawString("Hello World!", font, Brushes.Red, 0, 0);
+                    var graphics = Graphics.FromImage(bitmap);
+                    var font = new Font("Arial", 20, System.Drawing.FontStyle.Regular);
 
-                        // Important part!
-                        bitmap.Save(Path.Combine(destinationDir, fileName + ".jpg"));
-                    }
+                    // Do what you want using the Graphics object here.
+                    graphics.DrawString("Hello World!", font, Brushes.Red, 0, 0);
+
+                    // Important part!
+
+                    bitmap.Save(Path.Combine(destinationDir, fileName + ".jpg"), myImageCodecInfo, myEncoderParameters);
                 }
             }
 
             Console.ReadLine();
         }
 
-        public static Bitmap GetBitmap(BitmapSource source)
+        private Bitmap GetBitmap(BitmapSource source)
         {
             Bitmap bmp = new Bitmap(
               source.PixelWidth,
@@ -105,6 +105,19 @@ namespace PodpisyZdjec
               data.Stride);
             bmp.UnlockBits(data);
             return bmp;
+        }
+
+        private static ImageCodecInfo GetEncoderInfo(String mimeType)
+        {
+            int j;
+            ImageCodecInfo[] encoders;
+            encoders = ImageCodecInfo.GetImageEncoders();
+            for (j = 0; j < encoders.Length; ++j)
+            {
+                if (encoders[j].MimeType == mimeType)
+                    return encoders[j];
+            }
+            return null;
         }
     }
 }
