@@ -245,7 +245,7 @@ namespace PodpisyZdjec
                 CopyMetadata(file, destinationFile);
             }
 
-            Console.ReadLine();
+            //Console.ReadLine();
         }
 
         private Bitmap GetBitmap(BitmapSource source)
