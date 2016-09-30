@@ -98,100 +98,126 @@ namespace PodpisyZdjec
                     Console.WriteLine("Width: " + width);
                     Console.WriteLine("Height: " + height);
 
-                    int fontSize = width / 22;
-
-                    var font = new Font("Arial", fontSize, System.Drawing.FontStyle.Regular);
-
-                    // Zdjęcie nie jest poziome
-                    if (orientation > 1)
+                    switch (orientation)
                     {
-                        switch (orientation)
-                        {
-                            case 1:
-                                Console.WriteLine("// No rotation required.");
-                                break;
-                            case 2:
-                                bitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                                break;
-                            case 3:
-                                bitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
-                                break;
-                            case 4:
-                                bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
-                                break;
-                            case 5:
-                                bitmap.RotateFlip(RotateFlipType.Rotate90FlipX);
-                                break;
-                            case 6:
-                                bitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
-                                break;
-                            case 7:
-                                bitmap.RotateFlip(RotateFlipType.Rotate270FlipX);
-                                break;
-                            case 8:
-                                bitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
-                                break;
-                        }
-
-                        int actualWidth = 1920 * width / 1080;
-
-                        Bitmap wideBitmap = new Bitmap(actualWidth, width);
-                        using (Graphics graph = Graphics.FromImage(wideBitmap))
-                        {
-                            Rectangle ImageSize = new Rectangle(0, 0, actualWidth, width);
-
-                            graph.FillRectangle(Brushes.Black, ImageSize);
-
-                            graph.DrawImage(bitmap, 0, 0);
-
-                            if (title != null)
-                            {
-                                Font titleFont = new Font("Arial", fontSize, System.Drawing.FontStyle.Bold);
-                                graph.DrawString(title, titleFont, Brushes.White, new RectangleF(height + (0.5f * fontSize), (0.5f * fontSize), actualWidth - fontSize, width - fontSize));
-                            }
-
-                            if (subject != null)
-                            {
-                                if (subject != title)
-                                    graph.DrawString(subject, font, Brushes.White, new RectangleF(height + (0.5f * fontSize), (2.5f * fontSize), actualWidth - fontSize, width - fontSize));
-                            }
-                        }
-
-                        switch (orientation)
-                        {
-                            case 1:
-                                Console.WriteLine("// No rotation required.");
-                                break;
-                            case 2:
-                                wideBitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                                break;
-                            case 3:
-                                wideBitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
-                                break;
-                            case 4:
-                                wideBitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
-                                break;
-                            case 5:
-                                wideBitmap.RotateFlip(RotateFlipType.Rotate270FlipX);
-                                break;
-                            case 6:
-                                wideBitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
-                                break;
-                            case 7:
-                                wideBitmap.RotateFlip(RotateFlipType.Rotate90FlipX);
-                                break;
-                            case 8:
-                                wideBitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
-                                break;
-                        }
-
-                        bitmap = wideBitmap;
+                        case 1:
+                            Console.WriteLine("// No rotation required.");
+                            break;
+                        case 2:
+                            bitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                            break;
+                        case 3:
+                            bitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                            break;
+                        case 4:
+                            bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
+                            break;
+                        case 5:
+                            bitmap.RotateFlip(RotateFlipType.Rotate90FlipX);
+                            break;
+                        case 6:
+                            bitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                            break;
+                        case 7:
+                            bitmap.RotateFlip(RotateFlipType.Rotate270FlipX);
+                            break;
+                        case 8:
+                            bitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                            break;
                     }
-                    else
+
+                    if (orientation == 1)
                     {
-                        //graphics.FillRectangle(new SolidBrush(Color.Black), new RectangleF(0, 0, width, lines * fontSize * 1.6f));
-                        //graphics.DrawString(text, font, Brushes.White, new RectangleF(0, 0, width, height));
+                        int tempWidth = width;
+                        width = height;
+                        height = tempWidth;
                     }
+
+                    int actualWidth = 1920 * width / 1080;
+
+                    Bitmap wideBitmap = new Bitmap(actualWidth, width);
+                    using (Graphics graph = Graphics.FromImage(wideBitmap))
+                    {
+                        Rectangle ImageSize = new Rectangle(0, 0, actualWidth, width);
+
+                        graph.FillRectangle(Brushes.Black, ImageSize);
+
+                        graph.DrawImage(bitmap, 0, 0);
+
+                        int start = height;
+                        if ((height * 2) > actualWidth)
+                            start = (int)Math.Round(0.8f * height);
+
+                        RectangleF textBox = new RectangleF(
+                            start,
+                            0,
+                            actualWidth - start,
+                            width);
+
+                        graph.FillRectangle(new SolidBrush(Color.FromArgb(25, 0, 0, 0)), textBox);
+
+                        int fontSize = actualWidth / 22;
+
+                        if (title != null)
+                        {
+                            Font titleFont = new Font("Arial", fontSize, System.Drawing.FontStyle.Bold);
+                            RectangleF titleTextBox = new RectangleF(
+                           start,
+                            0,
+                            actualWidth - start,
+                            width);
+                            graph.DrawString(title, titleFont, Brushes.White, titleTextBox);
+                        }
+
+                        if (subject != null)
+                        {
+                            if (subject != title)
+                            {
+                                Font subjectFont = new Font("Arial", fontSize, System.Drawing.FontStyle.Regular);
+                                RectangleF subjectTextBox = new RectangleF(
+                                    start,
+                                    width / 2,
+                                    actualWidth - start,
+                                    width);
+                                //http://csharphelper.com/blog/2014/07/align-text-drawn-by-drawstring-in-c/
+                                using (StringFormat sf = new StringFormat())
+                                {
+                                    graph.DrawString(subject, subjectFont, Brushes.White, subjectTextBox);
+                                }
+
+                            }
+                        }
+                    }
+
+                    switch (orientation)
+                    {
+                        case 1:
+                            Console.WriteLine("// No rotation required.");
+                            break;
+                        case 2:
+                            wideBitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                            break;
+                        case 3:
+                            wideBitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                            break;
+                        case 4:
+                            wideBitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
+                            break;
+                        case 5:
+                            wideBitmap.RotateFlip(RotateFlipType.Rotate270FlipX);
+                            break;
+                        case 6:
+                            wideBitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                            break;
+                        case 7:
+                            wideBitmap.RotateFlip(RotateFlipType.Rotate90FlipX);
+                            break;
+                        case 8:
+                            wideBitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                            break;
+                    }
+
+                    bitmap = wideBitmap;
 
                     // Important part!
 
