@@ -166,7 +166,13 @@ namespace PodpisyZdjec
                             0,
                             actualWidth - start,
                             width);
-                            graph.DrawString(title, titleFont, Brushes.White, titleTextBox);
+                            using (StringFormat sf = new StringFormat())
+                            {
+                                sf.LineAlignment = StringAlignment.Near;
+                                // Top/Left.
+                                sf.Alignment = StringAlignment.Far;
+                                graph.DrawString(title, titleFont, Brushes.White, titleTextBox, sf);
+                            }
                         }
 
                         if (subject != null)
@@ -178,11 +184,14 @@ namespace PodpisyZdjec
                                     start,
                                     width / 2,
                                     actualWidth - start,
-                                    width);
+                                    width / 2);
                                 //http://csharphelper.com/blog/2014/07/align-text-drawn-by-drawstring-in-c/
                                 using (StringFormat sf = new StringFormat())
                                 {
-                                    graph.DrawString(subject, subjectFont, Brushes.White, subjectTextBox);
+                                    sf.LineAlignment = StringAlignment.Near;
+                                    // Top/Left.
+                                    sf.Alignment = StringAlignment.Far;
+                                    graph.DrawString(subject, subjectFont, Brushes.White, subjectTextBox, sf);
                                 }
 
                             }
