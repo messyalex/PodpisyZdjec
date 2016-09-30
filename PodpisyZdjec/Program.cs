@@ -50,39 +50,86 @@ namespace PodpisyZdjec
                 EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 100L);
                 myEncoderParameters.Param[0] = myEncoderParameter;
 
-                using (FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
+                FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                Image currentPicture = Image.FromStream(fs);
+
+                var orientation = 1;
+                try
                 {
-                    BitmapSource img = BitmapFrame.Create(fs);
-                    BitmapMetadata md = (BitmapMetadata)img.Metadata;
-
-                    string date = md.DateTaken;
-                    string title = md.Title;
-                    string subject = md.Subject;
-                    string comment = md.Comment;
-
-                    //Console.WriteLine("Date: " + date);
-                    //Console.WriteLine("Title: " + title);
-                    //Console.WriteLine("Subject: " + subject);
-                    int chars = 0;
-                    if (title != null)
-                        chars += title.Length;
-                    if (subject != null)
-                        chars += subject.Length;
-                    Console.WriteLine("Chars: " + chars);
-
-                    //Console.WriteLine("Comment: " + comment);
-
-                    Bitmap bitmap = GetBitmap(img);
-                    var graphics = Graphics.FromImage(bitmap);
-                    var font = new Font("Arial", 20, System.Drawing.FontStyle.Regular);
-
-                    // Do what you want using the Graphics object here.
-                    graphics.DrawString("Hello World!", font, Brushes.Red, 0, 0);
-
-                    // Important part!
-
-                    bitmap.Save(Path.Combine(destinationDir, fileName + ".jpg"), myImageCodecInfo, myEncoderParameters);
+                    orientation = (int)currentPicture.GetPropertyItem(274).Value[0];
                 }
+                catch (Exception e)
+                {
+
+                }
+
+                fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                BitmapSource img = BitmapFrame.Create(fs);
+                BitmapMetadata md = (BitmapMetadata)img.Metadata;
+
+                string date = md.DateTaken;
+                string title = md.Title;
+                string subject = md.Subject;
+                string comment = md.Comment;
+
+                //Console.WriteLine("Date: " + date);
+                //Console.WriteLine("Title: " + title);
+                //Console.WriteLine("Subject: " + subject);
+                int chars = 0;
+                if (title != null)
+                    chars += title.Length;
+                if (subject != null)
+                    chars += subject.Length;
+                Console.WriteLine("Chars: " + chars);
+
+                //Console.WriteLine("Comment: " + comment);
+
+                Bitmap bitmap = GetBitmap(img);
+                var graphics = Graphics.FromImage(bitmap);
+
+                int width = bitmap.Width;
+                int height = bitmap.Height;
+                Console.WriteLine("Width: " + width);
+                Console.WriteLine("Height: " + height);
+
+                var font = new Font("Arial", 20, System.Drawing.FontStyle.Regular);
+
+                // Do what you want using the Graphics object here.
+                graphics.DrawString("Hello World!", font, Brushes.Red, 0, 0);
+
+                // Important part!
+                switch (orientation)
+                {
+                    case 1:
+                        Console.WriteLine("// No rotation required.");
+                        break;
+                    case 2:
+                        bitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                        break;
+                    case 3:
+                        bitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                        break;
+                    case 4:
+                        bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
+                        break;
+                    case 5:
+                        bitmap.RotateFlip(RotateFlipType.Rotate90FlipX);
+                        break;
+                    case 6:
+                        bitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                        break;
+                    case 7:
+                        bitmap.RotateFlip(RotateFlipType.Rotate270FlipX);
+                        break;
+                    case 8:
+                        bitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                        break;
+                }
+
+                bitmap.Save(Path.Combine(destinationDir, fileName + ".jpg"), myImageCodecInfo, myEncoderParameters);
+
             }
 
             Console.ReadLine();
