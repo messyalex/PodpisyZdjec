@@ -43,6 +43,9 @@ namespace PodpisyZdjec
                 int extentionPos = file.IndexOf(".jpg", StringComparison.CurrentCultureIgnoreCase);
                 string fileName = file.Substring(lastDirectoryPos, extentionPos - lastDirectoryPos);
 
+                Console.WriteLine();
+                Console.WriteLine("Reading: " + fileName);
+
                 // jakość docelowych plików
                 ImageCodecInfo myImageCodecInfo = GetEncoderInfo("image/jpeg");
                 System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
@@ -65,7 +68,7 @@ namespace PodpisyZdjec
                         {
 
                         }
-                    }                    
+                    }
 
                     BitmapSource img = BitmapFrame.Create(fs);
                     BitmapMetadata md = (BitmapMetadata)img.Metadata;
@@ -95,45 +98,102 @@ namespace PodpisyZdjec
                     Console.WriteLine("Width: " + width);
                     Console.WriteLine("Height: " + height);
 
+                    int fontSize = width / 22;
+
+                    string text = title + ". " + subject;
+
+                    if (title != null && subject != null)
+                        text = title + ". " + subject;
+
+                    if (title == subject)
+                        text = title;
+
+                    var font = new Font("Arial", fontSize, System.Drawing.FontStyle.Regular);
+
+                    //if (text != null && text.Length > 0)
+                    float CharWidth = graphics.MeasureString("Y", font).Width;
+                    int lines = (int)Math.Round((text.Length * CharWidth) / width);
+                    Console.WriteLine("Text width: " + width + ", lines: " + lines);
+
                     // Zdjęcie nie jest poziome
-                    if(orientation > 0)
+                    if (orientation > 1)
                     {
-                        // opis z boku
+                        switch (orientation)
+                        {
+                            case 1:
+                                Console.WriteLine("// No rotation required.");
+                                break;
+                            case 2:
+                                bitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                                break;
+                            case 3:
+                                bitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                                break;
+                            case 4:
+                                bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
+                                break;
+                            case 5:
+                                bitmap.RotateFlip(RotateFlipType.Rotate90FlipX);
+                                break;
+                            case 6:
+                                bitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                                break;
+                            case 7:
+                                bitmap.RotateFlip(RotateFlipType.Rotate270FlipX);
+                                break;
+                            case 8:
+                                bitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                                break;
+                        }
+
+                        int actualWidth = 1920 * width / 1080;
+
+                        Bitmap wideBitmap = new Bitmap(actualWidth, width);
+                        using (Graphics graph = Graphics.FromImage(wideBitmap))
+                        {
+                            Rectangle ImageSize = new Rectangle(0, 0, actualWidth, width);
+                            graph.FillRectangle(Brushes.Black, ImageSize);
+                            graph.DrawImage(bitmap, 0, 0);
+                            graph.DrawString(title, font, Brushes.White, new RectangleF(height + (0.5f * fontSize), (0.5f * fontSize), actualWidth - fontSize, width - fontSize));
+                        }
+
+                        switch (orientation)
+                        {
+                            case 1:
+                                Console.WriteLine("// No rotation required.");
+                                break;
+                            case 2:
+                                wideBitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                                break;
+                            case 3:
+                                wideBitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                                break;
+                            case 4:
+                                wideBitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
+                                break;
+                            case 5:
+                                wideBitmap.RotateFlip(RotateFlipType.Rotate270FlipX);
+                                break;
+                            case 6:
+                                wideBitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                                break;
+                            case 7:
+                                wideBitmap.RotateFlip(RotateFlipType.Rotate90FlipX);
+                                break;
+                            case 8:
+                                wideBitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                                break;
+                        }
+
+                        bitmap = wideBitmap;
+                    }
+                    else
+                    {
+                        graphics.FillRectangle(new SolidBrush(Color.Black), new RectangleF(0, 0, width, lines * fontSize * 1.6f));
+                        graphics.DrawString(text, font, Brushes.White, new RectangleF(0, 0, width, height));
                     }
 
-                    var font = new Font("Arial", 20, System.Drawing.FontStyle.Regular);
-
-                    // Do what you want using the Graphics object here.
-                    graphics.DrawString("Hello World!", font, Brushes.Red, 0, 0);
-
                     // Important part!
-                    //switch (orientation)
-                    //{
-                    //    case 1:
-                    //        Console.WriteLine("// No rotation required.");
-                    //        break;
-                    //    case 2:
-                    //        bitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                    //        break;
-                    //    case 3:
-                    //        bitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
-                    //        break;
-                    //    case 4:
-                    //        bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
-                    //        break;
-                    //    case 5:
-                    //        bitmap.RotateFlip(RotateFlipType.Rotate90FlipX);
-                    //        break;
-                    //    case 6:
-                    //        bitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
-                    //        break;
-                    //    case 7:
-                    //        bitmap.RotateFlip(RotateFlipType.Rotate270FlipX);
-                    //        break;
-                    //    case 8:
-                    //        bitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
-                    //        break;
-                    //}
 
                     string destinationFile = Path.Combine(destinationDir, fileName + ".jpg");
                     bitmap.Save(destinationFile, myImageCodecInfo, myEncoderParameters);
@@ -226,6 +286,17 @@ namespace PodpisyZdjec
             }
             // Delete the temp file 
             File.Delete(tempFile);
+        }
+
+        private int GetLinesCount(string sText, Font objFont, int iMaxWidth)
+        {
+            StringFormat sfFmt = new StringFormat(StringFormatFlags.LineLimit);
+            Graphics g = Graphics.FromImage(new Bitmap(1, 1));
+            int iHeight = (int)g.MeasureString(sText, objFont, iMaxWidth, sfFmt).Height;
+            int iOneLineHeight = (int)g.MeasureString("Z", objFont, iMaxWidth, sfFmt).Height;
+            int iNumLines = (int)(iHeight / iOneLineHeight);
+
+            return iNumLines;
         }
     }
 }
