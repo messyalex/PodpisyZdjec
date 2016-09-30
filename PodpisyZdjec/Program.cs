@@ -50,86 +50,104 @@ namespace PodpisyZdjec
                 EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 100L);
                 myEncoderParameters.Param[0] = myEncoderParameter;
 
-                FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-                Image currentPicture = Image.FromStream(fs);
-
-                var orientation = 1;
-                try
+                using (FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
-                    orientation = (int)currentPicture.GetPropertyItem(274).Value[0];
+                    var orientation = 1;
+                    using (FileStream ofs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        Image currentPicture = Image.FromStream(ofs);
+
+                        try
+                        {
+                            orientation = (int)currentPicture.GetPropertyItem(274).Value[0];
+                        }
+                        catch (Exception e)
+                        {
+
+                        }
+                    }                    
+
+                    BitmapSource img = BitmapFrame.Create(fs);
+                    BitmapMetadata md = (BitmapMetadata)img.Metadata;
+
+                    string date = md.DateTaken;
+                    string title = md.Title;
+                    string subject = md.Subject;
+                    string comment = md.Comment;
+
+                    //Console.WriteLine("Date: " + date);
+                    //Console.WriteLine("Title: " + title);
+                    //Console.WriteLine("Subject: " + subject);
+                    int chars = 0;
+                    if (title != null)
+                        chars += title.Length;
+                    if (subject != null)
+                        chars += subject.Length;
+                    Console.WriteLine("Chars: " + chars);
+
+                    //Console.WriteLine("Comment: " + comment);
+
+                    Bitmap bitmap = GetBitmap(img);
+                    var graphics = Graphics.FromImage(bitmap);
+
+                    int width = bitmap.Width;
+                    int height = bitmap.Height;
+                    Console.WriteLine("Width: " + width);
+                    Console.WriteLine("Height: " + height);
+
+                    // Zdjęcie nie jest poziome
+                    if(orientation > 0)
+                    {
+                        // opis z boku
+                    }
+
+                    var font = new Font("Arial", 20, System.Drawing.FontStyle.Regular);
+
+                    // Do what you want using the Graphics object here.
+                    graphics.DrawString("Hello World!", font, Brushes.Red, 0, 0);
+
+                    // Important part!
+                    //switch (orientation)
+                    //{
+                    //    case 1:
+                    //        Console.WriteLine("// No rotation required.");
+                    //        break;
+                    //    case 2:
+                    //        bitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                    //        break;
+                    //    case 3:
+                    //        bitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                    //        break;
+                    //    case 4:
+                    //        bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
+                    //        break;
+                    //    case 5:
+                    //        bitmap.RotateFlip(RotateFlipType.Rotate90FlipX);
+                    //        break;
+                    //    case 6:
+                    //        bitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                    //        break;
+                    //    case 7:
+                    //        bitmap.RotateFlip(RotateFlipType.Rotate270FlipX);
+                    //        break;
+                    //    case 8:
+                    //        bitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                    //        break;
+                    //}
+
+                    string destinationFile = Path.Combine(destinationDir, fileName + ".jpg");
+                    bitmap.Save(destinationFile, myImageCodecInfo, myEncoderParameters);
                 }
-                catch (Exception e)
-                {
+            }
 
-                }
+            foreach (string file in files)
+            {
+                int lastDirectoryPos = file.LastIndexOf("\\") + 1;
+                int extentionPos = file.IndexOf(".jpg", StringComparison.CurrentCultureIgnoreCase);
+                string fileName = file.Substring(lastDirectoryPos, extentionPos - lastDirectoryPos);
 
-                fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-                BitmapSource img = BitmapFrame.Create(fs);
-                BitmapMetadata md = (BitmapMetadata)img.Metadata;
-
-                string date = md.DateTaken;
-                string title = md.Title;
-                string subject = md.Subject;
-                string comment = md.Comment;
-
-                //Console.WriteLine("Date: " + date);
-                //Console.WriteLine("Title: " + title);
-                //Console.WriteLine("Subject: " + subject);
-                int chars = 0;
-                if (title != null)
-                    chars += title.Length;
-                if (subject != null)
-                    chars += subject.Length;
-                Console.WriteLine("Chars: " + chars);
-
-                //Console.WriteLine("Comment: " + comment);
-
-                Bitmap bitmap = GetBitmap(img);
-                var graphics = Graphics.FromImage(bitmap);
-
-                int width = bitmap.Width;
-                int height = bitmap.Height;
-                Console.WriteLine("Width: " + width);
-                Console.WriteLine("Height: " + height);
-
-                var font = new Font("Arial", 20, System.Drawing.FontStyle.Regular);
-
-                // Do what you want using the Graphics object here.
-                graphics.DrawString("Hello World!", font, Brushes.Red, 0, 0);
-
-                // Important part!
-                switch (orientation)
-                {
-                    case 1:
-                        Console.WriteLine("// No rotation required.");
-                        break;
-                    case 2:
-                        bitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                        break;
-                    case 3:
-                        bitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
-                        break;
-                    case 4:
-                        bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
-                        break;
-                    case 5:
-                        bitmap.RotateFlip(RotateFlipType.Rotate90FlipX);
-                        break;
-                    case 6:
-                        bitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
-                        break;
-                    case 7:
-                        bitmap.RotateFlip(RotateFlipType.Rotate270FlipX);
-                        break;
-                    case 8:
-                        bitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
-                        break;
-                }
-
-                bitmap.Save(Path.Combine(destinationDir, fileName + ".jpg"), myImageCodecInfo, myEncoderParameters);
-
+                string destinationFile = Path.Combine(destinationDir, fileName + ".jpg");
+                CopyMetadata(file, destinationFile);
             }
 
             Console.ReadLine();
@@ -165,6 +183,49 @@ namespace PodpisyZdjec
                     return encoders[j];
             }
             return null;
+        }
+
+        private void CopyMetadata(string sourceFile, string destinationFile)
+        {
+            BitmapCreateOptions createOptions = BitmapCreateOptions.PreservePixelFormat | BitmapCreateOptions.IgnoreColorProfile;
+            // Create backup of the file so you can read and write to different files 
+            string tempFile = destinationFile + ".tmp";
+            File.Copy(destinationFile, tempFile, true);
+            // Open the source file 
+            using (Stream sourceStream = File.Open(sourceFile, FileMode.Open, FileAccess.Read))
+            {
+                BitmapDecoder sourceDecoder = BitmapDecoder.Create(sourceStream, createOptions, BitmapCacheOption.None);
+                // Check source is has valid frames 
+                if (sourceDecoder.Frames[0] != null && sourceDecoder.Frames[0].Metadata != null)
+                {
+                    // Get a clone copy of the metadata 
+                    BitmapMetadata sourceMetadata = sourceDecoder.Frames[0].Metadata.Clone() as BitmapMetadata;
+                    // Open the temp file 
+                    using (Stream tempStream = File.Open(tempFile, FileMode.Open, FileAccess.Read))
+                    {
+                        BitmapDecoder tempDecoder = BitmapDecoder.Create(tempStream, createOptions, BitmapCacheOption.None);
+                        // Check temp file has valid frames 
+                        if (tempDecoder.Frames[0] != null && tempDecoder.Frames[0].Metadata != null)
+                        {
+                            // Open the destination file 
+                            using (Stream destinationStream = File.Open(destinationFile, FileMode.Open, FileAccess.ReadWrite))
+                            {
+                                // Create a new jpeg frame, replacing the destination metadata with the source 
+                                BitmapFrame destinationFrame = BitmapFrame.Create(tempDecoder.Frames[0],
+                                      tempDecoder.Frames[0].Thumbnail,
+                                      sourceMetadata,
+                                      tempDecoder.Frames[0].ColorContexts);
+                                // Save the file 
+                                JpegBitmapEncoder destinationEncoder = new JpegBitmapEncoder();
+                                destinationEncoder.Frames.Add(destinationFrame);
+                                destinationEncoder.Save(destinationStream);
+                            }
+                        }
+                    }
+                }
+            }
+            // Delete the temp file 
+            File.Delete(tempFile);
         }
     }
 }
