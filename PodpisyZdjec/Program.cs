@@ -154,7 +154,7 @@ namespace PodpisyZdjec
                             actualWidth - start,
                             width);
 
-                        graph.FillRectangle(new SolidBrush(Color.FromArgb(25, 0, 0, 0)), textBox);
+                        graph.FillRectangle(new SolidBrush(Color.FromArgb(50, 0, 0, 0)), textBox);
 
                         int fontSize = actualWidth / 22;
 
