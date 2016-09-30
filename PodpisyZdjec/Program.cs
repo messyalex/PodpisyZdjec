@@ -100,20 +100,7 @@ namespace PodpisyZdjec
 
                     int fontSize = width / 22;
 
-                    string text = title + ". " + subject;
-
-                    if (title != null && subject != null)
-                        text = title + ". " + subject;
-
-                    if (title == subject)
-                        text = title;
-
                     var font = new Font("Arial", fontSize, System.Drawing.FontStyle.Regular);
-
-                    //if (text != null && text.Length > 0)
-                    float CharWidth = graphics.MeasureString("Y", font).Width;
-                    int lines = (int)Math.Round((text.Length * CharWidth) / width);
-                    Console.WriteLine("Text width: " + width + ", lines: " + lines);
 
                     // Zdjęcie nie jest poziome
                     if (orientation > 1)
@@ -152,9 +139,22 @@ namespace PodpisyZdjec
                         using (Graphics graph = Graphics.FromImage(wideBitmap))
                         {
                             Rectangle ImageSize = new Rectangle(0, 0, actualWidth, width);
+
                             graph.FillRectangle(Brushes.Black, ImageSize);
+
                             graph.DrawImage(bitmap, 0, 0);
-                            graph.DrawString(title, font, Brushes.White, new RectangleF(height + (0.5f * fontSize), (0.5f * fontSize), actualWidth - fontSize, width - fontSize));
+
+                            if (title != null)
+                            {
+                                Font titleFont = new Font("Arial", fontSize, System.Drawing.FontStyle.Bold);
+                                graph.DrawString(title, titleFont, Brushes.White, new RectangleF(height + (0.5f * fontSize), (0.5f * fontSize), actualWidth - fontSize, width - fontSize));
+                            }
+
+                            if (subject != null)
+                            {
+                                if (subject != title)
+                                    graph.DrawString(subject, font, Brushes.White, new RectangleF(height + (0.5f * fontSize), (2.5f * fontSize), actualWidth - fontSize, width - fontSize));
+                            }
                         }
 
                         switch (orientation)
@@ -189,8 +189,8 @@ namespace PodpisyZdjec
                     }
                     else
                     {
-                        graphics.FillRectangle(new SolidBrush(Color.Black), new RectangleF(0, 0, width, lines * fontSize * 1.6f));
-                        graphics.DrawString(text, font, Brushes.White, new RectangleF(0, 0, width, height));
+                        //graphics.FillRectangle(new SolidBrush(Color.Black), new RectangleF(0, 0, width, lines * fontSize * 1.6f));
+                        //graphics.DrawString(text, font, Brushes.White, new RectangleF(0, 0, width, height));
                     }
 
                     // Important part!
