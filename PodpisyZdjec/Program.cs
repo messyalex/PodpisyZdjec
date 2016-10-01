@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,7 @@ namespace PodpisyZdjec
         private string desktopPath;
         private string sourceDir;
         private string destinationDir;
+        private float fontSizeCofactor = 4.5f / 100;
 
         public Stamper()
         {
@@ -31,9 +33,13 @@ namespace PodpisyZdjec
 
             Console.WriteLine("Source directory name in desktop: ");
             sourceDir = Console.ReadLine();
+
             Console.WriteLine("Destination directory name in desktop: ");
             destinationDir = Path.Combine(desktopPath, Console.ReadLine());
             System.IO.Directory.CreateDirectory(destinationDir);
+
+            Console.WriteLine("Font size as percent of screen width (default 4.5): ");
+            fontSizeCofactor = float.Parse(Console.ReadLine(), CultureInfo.InvariantCulture.NumberFormat) / 100;
 
             string[] files = Directory.GetFiles(Path.Combine(desktopPath, sourceDir), "*.jpg", SearchOption.TopDirectoryOnly);
 
@@ -156,7 +162,9 @@ namespace PodpisyZdjec
 
                         graph.FillRectangle(new SolidBrush(Color.FromArgb(50, 0, 0, 0)), textBox);
 
-                        int fontSize = actualWidth / 22;
+                        int fontSize = (int)Math.Round(actualWidth * fontSizeCofactor);
+                        Console.WriteLine("fontSizeCofactor: " + fontSizeCofactor + ", fontSize: " + fontSize + ", actualWidth: " + actualWidth);
+
 
                         if (title != null)
                         {
@@ -245,7 +253,7 @@ namespace PodpisyZdjec
                 CopyMetadata(file, destinationFile);
             }
 
-            //Console.ReadLine();
+            Console.ReadLine();
         }
 
         private Bitmap GetBitmap(BitmapSource source)
