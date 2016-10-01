@@ -30,7 +30,9 @@ namespace UruchamianiePokazuSlajdow
             Thread.Sleep(int.Parse(args[3]));
             InputSimulator.SimulateKeyPress(VirtualKeyCode.VK_P);
             Thread.Sleep(int.Parse(args[3]));
-            InputSimulator.SimulateKeyPress(VirtualKeyCode.VK_S);
+            //InputSimulator.SimulateKeyPress(VirtualKeyCode.VK_S);
+            //w polskojęzycznym windowsie klawisz H nie S
+            InputSimulator.SimulateKeyPress(VirtualKeyCode.VK_H);
             InputSimulator.SimulateKeyUp(VirtualKeyCode.MENU);
 
             Thread.Sleep(int.Parse(args[1]));
